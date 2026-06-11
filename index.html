@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SACHIN_DAS // SOC_ANALYST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Bebas+Neue&family=Oxanium:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:   #080c0a;
+    --bg1:     #0d1210;
+    --bg2:     #111a16;
+    --bg3:     #162019;
+    --green:   #00ff7f;
+    --green2:  #00cc66;
+    --green3:  #004d26;
+    --cyan:    #00e5ff;
+    --cyan2:   #00b8cc;
+    --cyan3:   #003d44;
+    --amber:   #ffb300;
+    --amber2:  #cc8f00;
+    --amber3:  #3d2b00;
+    --red:     #ff3c5a;
+    --grey:    #3a4a40;
+    --grey2:   #5a7060;
+    --text:    #b8d4c0;
+    --textdim: #4a6050;
+    --scanline: rgba(0,255,127,0.03);
+    --glow-g:  0 0 10px rgba(0,255,127,0.5), 0 0 30px rgba(0,255,127,0.2);
+    --glow-c:  0 0 10px rgba(0,229,255,0.5), 0 0 30px rgba(0,229,255,0.2);
+    --glow-a:  0 0 10px rgba(255,179,0,0.5), 0 0 30px rgba(255,179,0,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--scanline) 2px,
+      var(--scanline) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+    animation: scanroll 8s linear infinite;
+  }
+
+  @keyframes scanroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+  }
+
+  /* ─── BIOS SCREEN ─────────────────────────────────────── */
+  #bios {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--green);
+  }
+
+  #bios.hide {
+    animation: biosHide 0.4s ease forwards;
+  }
+
+  @keyframes biosHide {
+    0% { opacity: 1; }
+    100% { opacity: 0; pointer-events: none; }
+  }
+
+  .bios-line {
+    opacity: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .bios-bar {
+    width: 0%;
+    height: 3px;
+    background: var(--green);
+    margin-top: 6px;
+    box-shadow: var(--glow-g);
+    transition: width 1.8s ease;
+  }
+
+  .bios-bar.full { width: 100%; }
+
+  /* ─── NAVBAR ──────────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: rgba(8,12,10,0.92);
+    border-bottom: 1px solid var(--green3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--green);
+    letter-spacing: 3px;
+    text-shadow: var(--glow-g);
+  }
+
+  .nav-logo span { color: var(--cyan); }
+
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--textdim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::before {
+    content: '// ';
+    color: var(--green3);
+  }
+
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  #clock {
+    color: var(--amber);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .nav-status {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: var(--glow-g);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ─── HERO ────────────────────────────────────────────── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 80px 60px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(0,229,255,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(0,255,127,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,127,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,127,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+  }
+
+  .hero-content { position: relative; z-index: 1; max-width: 900px; }
+
+  .hero-eyebrow {
+    color: var(--cyan);
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+
+  .hero-eyebrow::before { content: '> '; color: var(--green); }
+
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 160px);
+    line-height: 0.9;
+    color: var(--green);
+    letter-spacing: 6px;
+    text-shadow: var(--glow-g);
+    position: relative;
+  }
+
+  /* GLITCH */
+  .hero-name::before,
+  .hero-name::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-name::before {
+    color: var(--cyan);
+    animation: glitch1 4s infinite;
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+  }
+
+  .hero-name::after {
+    color: var(--red);
+    animation: glitch2 4s infinite;
+    clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%);
+  }
+
+  @keyframes glitch1 {
+    0%, 90%, 100% { transform: translate(0); opacity: 0; }
+    92% { transform: translate(-3px, 1px); opacity: 0.8; }
+    94% { transform: translate(3px, -1px); opacity: 0.8; }
+    96% { transform: translate(-2px, 2px); opacity: 0.8; }
+    98% { transform: translate(0); opacity: 0; }
+  }
+
+  @keyframes glitch2 {
+    0%, 88%, 100% { transform: translate(0); opacity: 0; }
+    90% { transform: translate(3px, -2px); opacity: 0.7; }
+    93% { transform: translate(-3px, 1px); opacity: 0.7; }
+    96% { transform: translate(2px, -1px); opacity: 0.7; }
+    99% { transform: translate(0); opacity: 0; }
+  }
+
+  .hero-sub {
+    font-family: 'Oxanium', sans-serif;
+    font-size: clamp(16px, 2.5vw, 28px);
+    font-weight: 300;
+    color: var(--cyan);
+    letter-spacing: 6px;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  /* TERMINAL WIDGET */
+  .hero-terminal {
+    margin-top: 40px;
+    background: var(--bg1);
+    border: 1px solid var(--green3);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 620px;
+    box-shadow: 0 0 40px rgba(0,255,127,0.08), inset 0 0 40px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  .term-titlebar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--green3);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .term-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .term-dot.red   { background: #ff5f57; }
+  .term-dot.amber { background: var(--amber); }
+  .term-dot.green { background: var(--green); box-shadow: var(--glow-g); }
+
+  .term-title {
+    margin-left: 8px;
+    color: var(--grey2);
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .term-body {
+    padding: 20px 18px;
+    font-size: 13px;
+    min-height: 140px;
+  }
+
+  .term-line { margin-bottom: 4px; }
+  .term-line .prompt { color: var(--green); }
+  .term-line .cmd    { color: var(--text); }
+  .term-line .out    { color: var(--cyan2); }
+  .term-line .dim    { color: var(--textdim); }
+  .term-line .hi     { color: var(--amber); }
+
+  .cursor {
+    display: inline-block;
+    width: 9px; height: 16px;
+    background: var(--green);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* HERO BADGES */
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .badge {
+    padding: 5px 14px;
+    border: 1px solid var(--green3);
+    color: var(--green2);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(0,255,127,0.04);
+    transition: all 0.2s;
+  }
+
+  .badge:hover {
+    background: rgba(0,255,127,0.1);
+    border-color: var(--green);
+    box-shadow: var(--glow-g);
+    color: var(--green);
+  }
+
+  .badge.cyan {
+    border-color: var(--cyan3);
+    color: var(--cyan2);
+    background: rgba(0,229,255,0.04);
+  }
+
+  .badge.cyan:hover {
+    background: rgba(0,229,255,0.1);
+    border-color: var(--cyan);
+    box-shadow: var(--glow-c);
+    color: var(--cyan);
+  }
+
+  .badge.amber {
+    border-color: var(--amber3);
+    color: var(--amber2);
+    background: rgba(255,179,0,0.04);
+  }
+
+  .badge.amber:hover {
+    background: rgba(255,179,0,0.1);
+    border-color: var(--amber);
+    box-shadow: var(--glow-a);
+    color: var(--amber);
+  }
+
+  /* ─── SECTION BASE ────────────────────────────────────── */
+  section {
+    padding: 100px 60px;
+    border-top: 1px solid rgba(0,255,127,0.06);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--green3);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 5px;
+    color: var(--green);
+    text-shadow: var(--glow-g);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--green3), transparent);
+  }
+
+  /* ─── SKILLS ──────────────────────────────────────────── */
+  #skills { background: var(--bg1); }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 3px;
+  }
+
+  .skill-card {
+    padding: 18px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--bg3);
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+  }
+
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--green);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+
+  .skill-card:hover { background: var(--bg3); border-color: var(--green3); }
+  .skill-card:hover::before { transform: scaleY(1); }
+
+  .skill-icon { color: var(--green); font-size: 18px; margin-bottom: 6px; }
+  .skill-name { font-size: 12px; letter-spacing: 1px; color: var(--text); }
+
+  .skill-card.tool .skill-icon { color: var(--cyan); }
+  .skill-card.tool::before { background: var(--cyan); }
+
+  /* SKILL BAR */
+  .skill-bar {
+    margin-top: 8px;
+    height: 2px;
+    background: var(--bg1);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .skill-fill {
+    height: 100%;
+    background: var(--green);
+    box-shadow: 0 0 6px rgba(0,255,127,0.6);
+    width: 0;
+    transition: width 1.2s ease;
+  }
+
+  .skill-card.tool .skill-fill { background: var(--cyan); box-shadow: 0 0 6px rgba(0,229,255,0.6); }
+
+  /* ─── EXPERIENCE ──────────────────────────────────────── */
+  .timeline { position: relative; padding-left: 40px; }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--green), var(--green3), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 60px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -37px;
+    top: 6px;
+    width: 10px; height: 10px;
+    border: 2px solid var(--green);
+    background: var(--black);
+    box-shadow: var(--glow-g);
+    transform: rotate(45deg);
+  }
+
+  .timeline-date {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+
+  .timeline-date::before { content: '['; color: var(--amber3); }
+  .timeline-date::after  { content: ']'; color: var(--amber3); }
+
+  .timeline-role {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2px;
+  }
+
+  .timeline-org {
+    font-size: 12px;
+    color: var(--cyan2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 4px 0 14px;
+  }
+
+  .timeline-org::before { content: '@ '; color: var(--cyan3); }
+
+  .timeline-desc { color: var(--text); font-size: 13px; }
+
+  .timeline-desc li {
+    list-style: none;
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 6px;
+  }
+
+  .timeline-desc li::before { content: '>'; position: absolute; left: 0; color: var(--green3); }
+
+  /* ─── CERTIFICATIONS ──────────────────────────────────── */
+  #certifications { background: var(--bg1); }
+
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+  }
+
+  .cert-card {
+    padding: 20px 22px;
+    background: var(--bg2);
+    border: 1px solid var(--bg3);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: all 0.2s;
+  }
+
+  .cert-card:hover { background: var(--bg3); border-color: var(--amber3); }
+
+  .cert-icon {
+    font-size: 22px;
+    color: var(--amber);
+    flex-shrink: 0;
+    text-shadow: var(--glow-a);
+  }
+
+  .cert-name {
+    font-size: 12px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+  }
+
+  .cert-date {
+    font-size: 10px;
+    color: var(--textdim);
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* ─── PROJECTS ────────────────────────────────────────── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2px;
+  }
+
+  .proj-card {
+    background: var(--bg2);
+    border: 1px solid var(--bg3);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+
+  .proj-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--green), var(--cyan));
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .proj-card:hover { background: var(--bg3); transform: translateY(-2px); }
+  .proj-card:hover::after { transform: scaleX(1); }
+
+  .proj-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--cyan2);
+    margin-bottom: 10px;
+  }
+
+  .proj-name {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .proj-desc { font-size: 12px; color: var(--text); line-height: 1.7; }
+
+  .proj-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+  }
+
+  .proj-tool {
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    background: rgba(0,229,255,0.06);
+    border: 1px solid var(--cyan3);
+    color: var(--cyan2);
+  }
+
+  /* ─── CONTACT TERMINAL ────────────────────────────────── */
+  #contact { background: var(--bg1); }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .contact-info { }
+
+  .contact-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 18px;
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .contact-item .ci-label {
+    color: var(--green2);
+    min-width: 90px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .contact-item a { color: var(--cyan2); text-decoration: none; }
+  .contact-item a:hover { color: var(--cyan); text-shadow: var(--glow-c); }
+
+  /* INTERACTIVE TERMINAL */
+  .int-terminal {
+    background: var(--black);
+    border: 1px solid var(--green3);
+    border-radius: 4px;
+    box-shadow: 0 0 60px rgba(0,255,127,0.06);
+    overflow: hidden;
+  }
+
+  .int-terminal .term-titlebar {
+    background: var(--bg1);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .int-term-body {
+    padding: 20px;
+    min-height: 300px;
+    max-height: 380px;
+    overflow-y: auto;
+    font-size: 13px;
+  }
+
+  .int-term-body::-webkit-scrollbar { width: 4px; }
+  .int-term-body::-webkit-scrollbar-track { background: transparent; }
+  .int-term-body::-webkit-scrollbar-thumb { background: var(--green3); }
+
+  .iterm-line { margin-bottom: 4px; line-height: 1.6; }
+  .iterm-line.in { color: var(--green); }
+  .iterm-line.out { color: var(--cyan2); }
+  .iterm-line.err { color: var(--red); }
+  .iterm-line.sys { color: var(--amber); }
+
+  .iterm-input-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-top: 1px solid var(--green3);
+    background: rgba(0,255,127,0.02);
+  }
+
+  .iterm-prompt { color: var(--green); margin-right: 8px; flex-shrink: 0; }
+
+  #iterm-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    caret-color: var(--green);
+  }
+
+  /* ─── FOOTER ──────────────────────────────────────────── */
+  footer {
+    background: var(--black);
+    border-top: 1px solid var(--green3);
+    padding: 24px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--textdim);
+  }
+
+  footer .foot-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--green3);
+    letter-spacing: 3px;
+  }
+
+  /* ─── SCROLL REVEAL ───────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 768px) {
+    section  { padding: 70px 24px; }
+    #hero    { padding: 80px 24px 50px; }
+    nav      { padding: 0 16px; }
+    .nav-links { display: none; }
+    .contact-layout { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 8px; text-align: center; }
+    #bios  { padding: 30px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ BIOS BOOT ══════════════════════════════════════════════ -->
+<div id="bios">
+  <div style="color:var(--grey2);font-size:11px;letter-spacing:1px;margin-bottom:30px;">
+    SACHIN_OS v2.5.0 // BIOS POST — SECURITY WORKSTATION
+  </div>
+  <div id="bios-lines"></div>
+  <div style="margin-top:24px;color:var(--textdim);font-size:11px;">
+    [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] LOADING MODULES...
+  </div>
+  <div class="bios-bar" id="bios-bar"></div>
+</div>
+
+<!-- ═══ NAVBAR ════════════════════════════════════════════════ -->
+<nav id="navbar" style="display:none;">
+  <div class="nav-logo">SACHIN<span>_</span>DAS</div>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <div id="clock"></div>
+    <div class="nav-status"></div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ══════════════════════════════════════════ -->
+<main id="main" style="display:none;">
+
+<!-- ─── HERO ─────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">SOC Analyst | Security Researcher | CTF Player</div>
+    <h1 class="hero-name" data-text="SACHIN DAS">SACHIN DAS</h1>
+    <div class="hero-sub">CompTIA Security+ // Ernakulam, India</div>
+
+    <div class="hero-terminal" style="margin-top:40px;">
+      <div class="term-titlebar">
+        <div class="term-dot red"></div>
+        <div class="term-dot amber"></div>
+        <div class="term-dot green"></div>
+        <div class="term-title">sachin@sechost:~$</div>
+      </div>
+      <div class="term-body" id="hero-term"></div>
+    </div>
+
+    <div class="hero-badges">
+      <span class="badge">SIEM</span>
+      <span class="badge">Splunk</span>
+      <span class="badge">Wazuh</span>
+      <span class="badge cyan">Threat Detection</span>
+      <span class="badge cyan">Incident Response</span>
+      <span class="badge cyan">MITRE ATT&amp;CK</span>
+      <span class="badge amber">Pentest</span>
+      <span class="badge amber">Burp Suite</span>
+      <span class="badge amber">CTF</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SKILLS ────────────────────────────────────────────── -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="section-num">01 //</span>
+    <h2 class="section-title">SKILLS &amp; TOOLS</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div style="margin-bottom:16px;color:var(--textdim);font-size:11px;letter-spacing:2px;">// CORE COMPETENCIES</div>
+  <div class="skills-grid reveal">
+    <div class="skill-card" data-fill="90">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">SIEM (Splunk / Wazuh)</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="90"></div></div>
+    </div>
+    <div class="skill-card" data-fill="85">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Security Alert Monitoring</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="85"></div></div>
+    </div>
+    <div class="skill-card" data-fill="88">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Log Analysis &amp; Investigation</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="88"></div></div>
+    </div>
+    <div class="skill-card" data-fill="82">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Incident Detection &amp; Response</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="82"></div></div>
+    </div>
+    <div class="skill-card" data-fill="85">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">MITRE ATT&amp;CK Framework</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="85"></div></div>
+    </div>
+    <div class="skill-card" data-fill="80">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Vulnerability Assessment</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="80"></div></div>
+    </div>
+    <div class="skill-card" data-fill="78">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Network Security</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="78"></div></div>
+    </div>
+    <div class="skill-card" data-fill="80">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Linux Administration</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="80"></div></div>
+    </div>
+    <div class="skill-card" data-fill="75">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Android Penetration Testing</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="75"></div></div>
+    </div>
+    <div class="skill-card" data-fill="78">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Web Application Testing</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="78"></div></div>
+    </div>
+    <div class="skill-card" data-fill="76">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Active Directory</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="76"></div></div>
+    </div>
+    <div class="skill-card" data-fill="65">
+      <div class="skill-icon">⬡</div>
+      <div class="skill-name">Python / Bash (Basic)</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="65"></div></div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;margin-bottom:16px;color:var(--textdim);font-size:11px;letter-spacing:2px;">// TOOLS & ARSENAL</div>
+  <div class="skills-grid reveal">
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Splunk</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="88"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Wazuh</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="85"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Wireshark</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="80"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Nmap</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="82"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Burp Suite</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="78"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Metasploit</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="75"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">SQLMap</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="72"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Hydra</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="70"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">John the Ripper</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="70"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">WPScan</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="72"></div></div>
+    </div>
+    <div class="skill-card tool">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Wifite</div>
+      <div class="skill-bar"><div class="skill-fill" data-w="68"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── EXPERIENCE ────────────────────────────────────────── -->
+<section id="experience">
+  <div class="section-header reveal">
+    <span class="section-num">02 //</span>
+    <h2 class="section-title">EXPERIENCE</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-date">Jul 2025 – Sep 2025</div>
+      <div class="timeline-role">CYBERSECURITY INTERN</div>
+      <div class="timeline-org">Hackware Security Solutions · Kochi, Kerala</div>
+      <ul class="timeline-desc">
+        <li>Performed security testing on 2 web applications and conducted an Active Directory (AD) assessment, identifying misconfigurations and documenting vulnerabilities with remediation recommendations.</li>
+        <li>Tested an Android application for security flaws and applied penetration testing methodologies across real-world client projects.</li>
+      </ul>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-date">May 2023</div>
+      <div class="timeline-role">TECHNICAL INTERN</div>
+      <div class="timeline-org">KELTRON – Kerala State Electronics Development Corporation Ltd · Ernakulam</div>
+      <ul class="timeline-desc">
+        <li>Completed IoT internship covering architecture, Arduino programming, IoT protocols, and cloud integration.</li>
+        <li>Delivered a Smart Home final project demonstrating end-to-end IoT system design.</li>
+      </ul>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-date">May 2022</div>
+      <div class="timeline-role">TECHNICAL INTERN</div>
+      <div class="timeline-org">BSNL – Bharat Sanchar Nigam Limited · Pathanamthitta</div>
+      <ul class="timeline-desc">
+        <li>Gained hands-on exposure to telecom network infrastructure, system administration, and network traffic fundamentals.</li>
+      </ul>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-date">2024 – 2025</div>
+      <div class="timeline-role">ADVANCED DIPLOMA IN INFORMATION SECURITY</div>
+      <div class="timeline-org">Offenso Hackers Academy · Kochi</div>
+      <ul class="timeline-desc">
+        <li>Intensive practical training in ethical hacking, SIEM operations, incident response, and penetration testing.</li>
+      </ul>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-date">2021 – 2024</div>
+      <div class="timeline-role">DIPLOMA — ELECTRONICS &amp; COMMUNICATION ENG.</div>
+      <div class="timeline-org">NSS Polytechnic College · Pandalam</div>
+      <ul class="timeline-desc">
+        <li>Built strong foundations in electronics, networking, and embedded systems.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CERTIFICATIONS ────────────────────────────────────── -->
+<section id="certifications">
+  <div class="section-header reveal">
+    <span class="section-num">03 //</span>
+    <h2 class="section-title">CERTIFICATIONS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="cert-grid">
+    <div class="cert-card reveal">
+      <div class="cert-icon">★</div>
+      <div>
+        <div class="cert-name">CompTIA Security+ (SY0-701)</div>
+        <div class="cert-date">NOV 2025</div>
+      </div>
+    </div>
+    <div class="cert-card reveal">
+      <div class="cert-icon">◆</div>
+      <div>
+        <div class="cert-name">Microsoft — Student SOC Program Foundations Training</div>
+        <div class="cert-date">MAR 2026</div>
+      </div>
+    </div>
+    <div class="cert-card reveal">
+      <div class="cert-icon">◆</div>
+      <div>
+        <div class="cert-name">Security Blue Team — Introduction to Penetration Testing</div>
+        <div class="cert-date">APR 2026</div>
+      </div>
+    </div>
+    <div class="cert-card reveal">
+      <div class="cert-icon">◆</div>
+      <div>
+        <div class="cert-name">Deloitte — Cyber Job Simulation (Forage)</div>
+        <div class="cert-date">MAR 2026</div>
+      </div>
+    </div>
+    <div class="cert-card reveal">
+      <div class="cert-icon">◇</div>
+      <div>
+        <div class="cert-name">Cybersecurity Foundations — LinkedIn Learning</div>
+        <div class="cert-date">JUN 2025</div>
+      </div>
+    </div>
+    <div class="cert-card reveal">
+      <div class="cert-icon">◇</div>
+      <div>
+        <div class="cert-name">AI For All — AI Aware Stage (Intel, CBSE &amp; Digital India)</div>
+        <div class="cert-date">MAY 2025</div>
+      </div>
+    </div>
+    <div class="cert-card reveal">
+      <div class="cert-icon">🏆</div>
+      <div>
+        <div class="cert-name">Certificate of Contribution — Hogwarts Eternal CTF</div>
+        <div class="cert-date">JUN 2025 · Offenso Hackers Academy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROJECTS ──────────────────────────────────────────── -->
+<section id="projects">
+  <div class="section-header reveal">
+    <span class="section-num">04 //</span>
+    <h2 class="section-title">PROJECTS</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="projects-grid">
+    <div class="proj-card reveal">
+      <div class="proj-tag">// WEB SECURITY</div>
+      <div class="proj-name">Web App Penetration Testing</div>
+      <div class="proj-desc">Conducted full-scope black-box assessment of two client web applications at Hackware Security. Identified SQLi, XSS, and auth bypass vectors; produced detailed CVE-mapped remediation reports.</div>
+      <div class="proj-tools">
+        <span class="proj-tool">Burp Suite</span>
+        <span class="proj-tool">SQLMap</span>
+        <span class="proj-tool">Nmap</span>
+        <span class="proj-tool">OWASP Top 10</span>
+      </div>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-tag">// ACTIVE DIRECTORY</div>
+      <div class="proj-name">AD Security Assessment</div>
+      <div class="proj-desc">Assessed an enterprise Active Directory environment for misconfigurations including Kerberoastable accounts, excessive privileges, and GPO weaknesses. Documented findings with step-by-step remediation.</div>
+      <div class="proj-tools">
+        <span class="proj-tool">BloodHound</span>
+        <span class="proj-tool">PowerView</span>
+        <span class="proj-tool">Metasploit</span>
+        <span class="proj-tool">AD Auditing</span>
+      </div>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-tag">// MOBILE SECURITY</div>
+      <div class="proj-name">Android App Security Testing</div>
+      <div class="proj-desc">Performed static and dynamic analysis on an Android application. Identified insecure data storage, improper cryptography, and exposed components using OWASP MASVS checklist.</div>
+      <div class="proj-tools">
+        <span class="proj-tool">APKTool</span>
+        <span class="proj-tool">MobSF</span>
+        <span class="proj-tool">Frida</span>
+        <span class="proj-tool">OWASP MASVS</span>
+      </div>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-tag">// SIEM / BLUE TEAM</div>
+      <div class="proj-name">Threat Detection Lab (Splunk + Wazuh)</div>
+      <div class="proj-desc">Built a home lab SIEM stack using Splunk and Wazuh to simulate real-world attack scenarios. Created custom detection rules mapped to MITRE ATT&amp;CK and practiced alert triage workflows.</div>
+      <div class="proj-tools">
+        <span class="proj-tool">Splunk</span>
+        <span class="proj-tool">Wazuh</span>
+        <span class="proj-tool">MITRE ATT&amp;CK</span>
+        <span class="proj-tool">Wireshark</span>
+      </div>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-tag">// CTF</div>
+      <div class="proj-name">Hogwarts Eternal CTF</div>
+      <div class="proj-desc">Contributed to team challenges in the Hogwarts Eternal CTF hosted by Offenso Hackers Academy, earning a Certificate of Contribution. Solved web exploitation, forensics, and OSINT challenges.</div>
+      <div class="proj-tools">
+        <span class="proj-tool">Web Exploitation</span>
+        <span class="proj-tool">Forensics</span>
+        <span class="proj-tool">OSINT</span>
+        <span class="proj-tool">CTF Tools</span>
+      </div>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-tag">// IOT</div>
+      <div class="proj-name">Smart Home IoT System</div>
+      <div class="proj-desc">Designed and delivered a smart home prototype during the KELTRON internship, integrating Arduino-based sensors with cloud services via MQTT protocol for remote monitoring and control.</div>
+      <div class="proj-tools">
+        <span class="proj-tool">Arduino</span>
+        <span class="proj-tool">MQTT</span>
+        <span class="proj-tool">Cloud IoT</span>
+        <span class="proj-tool">Sensors</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ────────────────────────────────────────────── -->
+<section id="contact">
+  <div class="section-header reveal">
+    <span class="section-num">05 //</span>
+    <h2 class="section-title">CONTACT</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="contact-layout">
+    <div class="contact-info reveal">
+      <div style="color:var(--textdim);font-size:11px;letter-spacing:2px;margin-bottom:24px;">// REACH OUT</div>
+
+      <div class="contact-item">
+        <span class="ci-label">EMAIL</span>
+        <a href="mailto:sachu4784@gmail.com">sachu4784@gmail.com</a>
+      </div>
+      <div class="contact-item">
+        <span class="ci-label">PHONE</span>
+        <span>+91 89437 71484</span>
+      </div>
+      <div class="contact-item">
+        <span class="ci-label">LINKEDIN</span>
+        <a href="https://linkedin.com/in/sachindas-60b094319" target="_blank">sachindas-60b094319</a>
+      </div>
+      <div class="contact-item">
+        <span class="ci-label">LOCATION</span>
+        <span>Ernakulam, Kerala, India</span>
+      </div>
+
+      <div style="margin-top:32px;padding:20px;background:var(--bg2);border:1px solid var(--green3);border-left:3px solid var(--green);">
+        <div style="color:var(--green2);font-size:11px;letter-spacing:2px;margin-bottom:8px;">STATUS // OPEN TO WORK</div>
+        <div style="color:var(--text);font-size:12px;line-height:1.8;">
+          Actively seeking SOC Analyst, Penetration Tester, or Security Engineer roles. Available immediately.
+        </div>
+      </div>
+
+      <div style="margin-top:20px;color:var(--textdim);font-size:11px;letter-spacing:1px;">
+        <div style="margin-bottom:6px;">REFERENCES</div>
+        <div style="color:var(--text);font-size:12px;margin-bottom:4px;">Abhijith UK — CTO, Offenso Hackers Academy</div>
+        <div style="color:var(--cyan2);font-size:11px;margin-bottom:10px;">cto@offensoacademy.com</div>
+        <div style="color:var(--text);font-size:12px;margin-bottom:4px;">Christo Johnson — Cybersecurity Mentor</div>
+        <div style="color:var(--cyan2);font-size:11px;">christojohnson.offenso@gmail.com</div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div style="color:var(--textdim);font-size:11px;letter-spacing:2px;margin-bottom:14px;">// INTERACTIVE TERMINAL — try: help, whoami, skills, contact</div>
+      <div class="int-terminal">
+        <div class="term-titlebar">
+          <div class="term-dot red"></div>
+          <div class="term-dot amber"></div>
+          <div class="term-dot green"></div>
+          <div class="term-title">guest@sachinos:~$</div>
+        </div>
+        <div class="int-term-body" id="iterm-output">
+          <div class="iterm-line sys">[SYSTEM] SACHIN_OS v2.5.0 — Security Terminal</div>
+          <div class="iterm-line sys">[SYSTEM] Type 'help' for available commands.</div>
+          <div class="iterm-line" style="color:var(--textdim);">─────────────────────────────────</div>
+        </div>
+        <div class="iterm-input-row">
+          <span class="iterm-prompt">guest@sachinos:~$</span>
+          <input type="text" id="iterm-input" placeholder="enter command..." autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────── -->
+<footer id="footer" style="display:none;">
+  <div class="foot-logo">SACHIN_DAS</div>
+  <div>SOC ANALYST // SECURITY RESEARCHER // CTF PLAYER</div>
+  <div>ERNAKULAM, KERALA, INDIA</div>
+</footer>
+
+<!-- ═══ JAVASCRIPT ═══════════════════════════════════════════ -->
+<script>
+// ── CLOCK ──────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('clock');
+  if (el) el.textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── BIOS BOOT ──────────────────────────────────────────────
+const biosLines = [
+  { text: 'BIOS Version 2.5.0 — SACHIN SECURITY WORKSTATION', color: 'var(--grey2)' },
+  { text: 'CPU: Intel® SecureCore™ i7 @ 4.2GHz — OK', color: 'var(--green)' },
+  { text: 'RAM: 32768 MB DDR5 — PASSED', color: 'var(--green)' },
+  { text: 'Disk: NVME0 — /dev/sda — SACHIN_OS v2.5.0 — READY', color: 'var(--green)' },
+  { text: 'NIC: eth0 — 192.168.1.42 — LINK UP', color: 'var(--green)' },
+  { text: 'Loading SIEM modules ... OK', color: 'var(--cyan)' },
+  { text: 'Loading Threat Intelligence feeds ... OK', color: 'var(--cyan)' },
+  { text: 'Loading Pentesting Arsenal ... OK', color: 'var(--amber)' },
+  { text: 'CompTIA Security+ (SY0-701) License — VERIFIED', color: 'var(--amber)' },
+  { text: 'Booting SACHIN_OS ...', color: 'var(--green)' },
+];
+
+let lineIdx = 0;
+const biosContainer = document.getElementById('bios-lines');
+const bar = document.getElementById('bios-bar');
+
+function showNextBiosLine() {
+  if (lineIdx >= biosLines.length) {
+    bar.classList.add('full');
+    setTimeout(hideBios, 2000);
+    return;
+  }
+  const d = document.createElement('div');
+  d.className = 'bios-line';
+  d.style.color = biosLines[lineIdx].color;
+  d.style.fontSize = '13px';
+  d.style.marginBottom = '6px';
+  d.style.letterSpacing = '0.5px';
+  d.textContent = biosLines[lineIdx].text;
+  biosContainer.appendChild(d);
+  requestAnimationFrame(() => { d.style.opacity = '1'; });
+  lineIdx++;
+  setTimeout(showNextBiosLine, 160);
+}
+
+function hideBios() {
+  document.getElementById('bios').classList.add('hide');
+  setTimeout(() => {
+    document.getElementById('bios').style.display = 'none';
+    document.getElementById('navbar').style.display = 'flex';
+    document.getElementById('main').style.display = 'block';
+    document.getElementById('footer').style.display = 'flex';
+    startHeroTyping();
+    initScrollReveal();
+  }, 420);
+}
+
+setTimeout(showNextBiosLine, 500);
+
+// ── HERO TYPING ────────────────────────────────────────────
+const heroSequence = [
+  { type: 'cmd',  text: 'whoami' },
+  { type: 'out',  text: 'sachin_das — SOC Analyst | Security Researcher' },
+  { type: 'blank' },
+  { type: 'cmd',  text: 'cat certifications.txt' },
+  { type: 'hi',   text: '[★] CompTIA Security+ (SY0-701)' },
+  { type: 'out',  text: '[◆] Microsoft Student SOC Program — Mar 2026' },
+  { type: 'out',  text: '[◆] Security Blue Team — Pentesting — Apr 2026' },
+  { type: 'blank' },
+  { type: 'cmd',  text: 'nmap -sV --script vuln target_sys' },
+  { type: 'dim',  text: 'Starting Nmap 7.94 ( https://nmap.org )' },
+  { type: 'out',  text: '22/tcp  open  ssh     OpenSSH 8.9' },
+  { type: 'out',  text: '80/tcp  open  http    Apache 2.4.52' },
+  { type: 'hi',   text: '!VULN: CVE-2023-44487 HTTP/2 Rapid Reset — CRITICAL' },
+  { type: 'blank' },
+  { type: 'cmd',  text: 'echo "Available. DM me."' },
+  { type: 'out',  text: 'Available. DM me.' },
+];
+
+function startHeroTyping() {
+  const container = document.getElementById('hero-term');
+  let i = 0;
+
+  function nextLine() {
+    if (i >= heroSequence.length) {
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      container.appendChild(cursor);
+      return;
+    }
+    const item = heroSequence[i++];
+    if (item.type === 'blank') {
+      container.appendChild(document.createElement('br'));
+      setTimeout(nextLine, 80);
+      return;
+    }
+    const line = document.createElement('div');
+    line.className = 'term-line';
+
+    if (item.type === 'cmd') {
+      line.innerHTML = `<span class="prompt">sachin@sechost:~$ </span>`;
+      const span = document.createElement('span');
+      span.className = 'cmd';
+      line.appendChild(span);
+      container.appendChild(line);
+      typeText(span, item.text, 40, () => setTimeout(nextLine, 120));
+    } else {
+      const cls = { out: 'out', dim: 'dim', hi: 'hi' }[item.type] || 'out';
+      line.innerHTML = `<span class="${cls}">${item.text}</span>`;
+      container.appendChild(line);
+      setTimeout(nextLine, 60);
+    }
+    container.scrollTop = container.scrollHeight;
+  }
+
+  nextLine();
+}
+
+function typeText(el, text, speed, cb) {
+  let idx = 0;
+  function step() {
+    if (idx >= text.length) { if (cb) cb(); return; }
+    el.textContent += text[idx++];
+    setTimeout(step, speed + Math.random() * 20);
+  }
+  step();
+}
+
+// ── SCROLL REVEAL ──────────────────────────────────────────
+function initScrollReveal() {
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // animate skill bars
+        const bars = e.target.querySelectorAll('.skill-fill');
+        bars.forEach(b => {
+          const w = b.getAttribute('data-w');
+          setTimeout(() => { b.style.width = w + '%'; }, 200);
+        });
+      }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(el => obs.observe(el));
+}
+
+// ── INTERACTIVE TERMINAL ───────────────────────────────────
+const itermOutput = document.getElementById('iterm-output');
+const itermInput  = document.getElementById('iterm-input');
+
+const cmds = {
+  help: () => [
+    { cls: 'sys', t: 'AVAILABLE COMMANDS:' },
+    { cls: 'out', t: '  whoami      — who is Sachin Das?' },
+    { cls: 'out', t: '  skills      — list technical skills' },
+    { cls: 'out', t: '  tools       — list security tools' },
+    { cls: 'out', t: '  certs       — list certifications' },
+    { cls: 'out', t: '  contact     — get contact info' },
+    { cls: 'out', t: '  hire        — why hire Sachin?' },
+    { cls: 'out', t: '  ctf         — CTF achievements' },
+    { cls: 'out', t: '  clear       — clear terminal' },
+  ],
+  whoami: () => [
+    { cls: 'out', t: 'Sachin Das — Aspiring SOC Analyst from Ernakulam, Kerala.' },
+    { cls: 'out', t: 'CompTIA Security+ (SY0-701) certified.' },
+    { cls: 'out', t: 'Hands-on with Splunk, Wazuh, SIEM, and real-world pentesting.' },
+    { cls: 'out', t: 'Actively seeking SOC / Security Engineer roles.' },
+  ],
+  skills: () => [
+    { cls: 'sys', t: 'CORE SKILLS:' },
+    { cls: 'out', t: '  SIEM (Splunk, Wazuh)  |  Log Analysis  |  Threat Detection' },
+    { cls: 'out', t: '  Incident Response     |  MITRE ATT&CK  |  Vuln Assessment' },
+    { cls: 'out', t: '  Android Pentest       |  Web App Testing  |  Active Directory' },
+    { cls: 'out', t: '  Linux Admin           |  Network Security  |  Python/Bash' },
+  ],
+  tools: () => [
+    { cls: 'sys', t: 'SECURITY ARSENAL:' },
+    { cls: 'out', t: '  Splunk  Wazuh  Wireshark  Nmap  Burp Suite' },
+    { cls: 'out', t: '  Metasploit  Hydra  SQLMap  John the Ripper' },
+    { cls: 'out', t: '  WPScan  Wifite' },
+  ],
+  certs: () => [
+    { cls: 'sys', t: 'CERTIFICATIONS:' },
+    { cls: 'hi',  t: '  [★] CompTIA Security+ (SY0-701) — Nov 2025' },
+    { cls: 'out', t: '  [◆] Microsoft Student SOC Program — Mar 2026' },
+    { cls: 'out', t: '  [◆] Security Blue Team — Pentest Intro — Apr 2026' },
+    { cls: 'out', t: '  [◆] Deloitte Cyber Job Simulation — Mar 2026' },
+    { cls: 'out', t: '  [◇] Cybersecurity Foundations — LinkedIn — Jun 2025' },
+  ],
+  contact: () => [
+    { cls: 'sys', t: 'CONTACT INFO:' },
+    { cls: 'out', t: '  Email    : sachu4784@gmail.com' },
+    { cls: 'out', t: '  Phone    : +91 89437 71484' },
+    { cls: 'out', t: '  LinkedIn : sachindas-60b094319' },
+    { cls: 'out', t: '  Location : Ernakulam, Kerala, India' },
+  ],
+  hire: () => [
+    { cls: 'hi',  t: '>> WHY HIRE SACHIN DAS?' },
+    { cls: 'out', t: '  ✓ CompTIA Security+ certified (SY0-701)' },
+    { cls: 'out', t: '  ✓ Real-world pentest experience at Hackware Security Solutions' },
+    { cls: 'out', t: '  ✓ Hands-on SIEM ops: Splunk + Wazuh threat detection labs' },
+    { cls: 'out', t: '  ✓ MITRE ATT&CK mapped detection rule building' },
+    { cls: 'out', t: '  ✓ Web, Android, and AD security assessment experience' },
+    { cls: 'out', t: '  ✓ CTF contributor, continuous learner, proactive mindset' },
+    { cls: 'out', t: '  → Currently OPEN TO WORK. sachu4784@gmail.com' },
+  ],
+  ctf: () => [
+    { cls: 'sys', t: 'CTF ACTIVITY:' },
+    { cls: 'out', t: '  [🏆] Hogwarts Eternal CTF — Certificate of Contribution' },
+    { cls: 'out', t: '       Offenso Hackers Academy — Jun 2025' },
+    { cls: 'out', t: '  Categories: Web Exploitation, Forensics, OSINT' },
+    { cls: 'out', t: '  Platform  : CTFd / HackTheBox style challenges' },
+  ],
+  clear: () => 'CLEAR',
+};
+
+function itermExec(cmd) {
+  const clean = cmd.trim().toLowerCase();
+
+  // echo input
+  const inLine = document.createElement('div');
+  inLine.className = 'iterm-line in';
+  inLine.textContent = 'guest@sachinos:~$ ' + cmd;
+  itermOutput.appendChild(inLine);
+
+  if (!clean) { itermOutput.scrollTop = itermOutput.scrollHeight; return; }
+
+  if (clean === 'clear') {
+    itermOutput.innerHTML = '';
+    return;
+  }
+
+  const handler = cmds[clean];
+  if (handler) {
+    const results = handler();
+    results.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'iterm-line ' + r.cls;
+      d.textContent = r.t;
+      itermOutput.appendChild(d);
+    });
+  } else {
+    const err = document.createElement('div');
+    err.className = 'iterm-line err';
+    err.textContent = `Command not found: '${cmd}'. Type 'help' for available commands.`;
+    itermOutput.appendChild(err);
+  }
+
+  itermOutput.scrollTop = itermOutput.scrollHeight;
+}
+
+itermInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    itermExec(itermInput.value);
+    itermInput.value = '';
+  }
+});
+</script>
+
+</body>
+</html>
